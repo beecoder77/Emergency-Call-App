@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setActionBarTitle("Emergency List");
         recyclerView = findViewById(R.id.recyclev);
         Log.i("autolog", "onCreate");
 
@@ -82,6 +83,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }catch (Exception e) {Log.i("autolog", "Exception");}
+    }
+
+    private void setActionBarTitle(String title) {
+        getSupportActionBar().setTitle(title);
     }
 
 }

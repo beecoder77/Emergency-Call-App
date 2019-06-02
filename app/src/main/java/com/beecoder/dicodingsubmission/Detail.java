@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -24,6 +26,8 @@ public class Detail extends AppCompatActivity {
     public static final String EXTRA_LINK = "extra_link";
     public static final String EXTRA_NAME = "extra_name";
 
+    private static final int REQUEST_CALL = 1;
+
     TextView judul, textdetail;
     ImageView img;
     Button button_nomor;
@@ -33,6 +37,7 @@ public class Detail extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        setActionBarTitle("Detail");
         judul = findViewById(R.id.detail_judul);
         textdetail = findViewById(R.id.detail_detail);
         img = findViewById(R.id.detail_img);
@@ -60,14 +65,32 @@ public class Detail extends AppCompatActivity {
         button_nomor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int nomor = (int) getIntent().getIntExtra(String.valueOf(EXTRA_NOMOR),0);
+                String phoneNumber = Integer.toString(nomor);
 
-                String nomor = getIntent().getStringExtra(EXTRA_NOMOR);
-                int phoneNumber = Integer.parseInt(nomor);
-
-                Intent callIntent = new Intent(Intent.ACTION_CALL);
-                callIntent.setData(Uri.parse("tel:" + phoneNumber));
-                context.startActivity(callIntent);
+                if(ContextCompat.checkSelfPermission(Detail.this,Manifest.permission.CALL_PHONE)!=
+                        PackageManager.PERMISSION_GRANTED){
+                    ActivityCompat.requestPermissions(Detail.this,
+                            new String[]{Manifest.permission.CALL_PHONE}, REQUEST_CALL);
+                }else {
+                    String dial = "tel:" + phoneNumber;
+                    startActivity(new Intent(Intent.ACTION_CALL, Uri.parse(dial)));
+                }
             }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CALL){
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                hajar();
+            }else {
+                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    private void setActionBarTitle(String title) {
+        getSupportActionBar().setTitle(title);
     }
 }
